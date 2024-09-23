@@ -1,12 +1,15 @@
 import fastify from "fastify";
+import { env } from "process";
 
-import { helloWorld } from "./routes/hello-world";
+import { createUser } from "./routes/create-user";
+import { getUsers } from "./routes/get-users";
 
 const app = fastify();
 
-app.register(helloWorld);
+app.register(createUser);
+app.register(getUsers);
 
-const PORT = 3333;
+const PORT = Number(env.PORT) || 3000;
 app.listen({ port: PORT }).then(() => {
   console.log(`Server running on port ${PORT}`);
 });
