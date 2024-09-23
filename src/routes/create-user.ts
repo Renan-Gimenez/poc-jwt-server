@@ -2,6 +2,10 @@ import type { FastifyInstance } from "fastify";
 
 import { prisma } from "@/utils/prismaClient";
 
+import bcrypt from "bcrypt";
+
+import { env } from "process";
+
 export async function createUser(app: FastifyInstance) {
   app.withTypeProvider().post("/create-user", {}, async (request) => {
     try {
@@ -11,10 +15,12 @@ export async function createUser(app: FastifyInstance) {
         email: string;
       };
 
+      const hashedPassword = await bcrypt.hash(password, Number(env.SALT));
+
       const newUser = await prisma.user.create({
         data: {
           username,
-          password,
+          password: hashedPassword,
           email,
         },
       });
