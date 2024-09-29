@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import jwt from "jsonwebtoken";
 
 import { prisma } from "@/utils/prismaClient";
 
@@ -7,7 +8,7 @@ import bcrypt from "bcrypt";
 import { env } from "process";
 
 export async function createUser(app: FastifyInstance) {
-  app.withTypeProvider().post("/create-user", {}, async (request) => {
+  app.withTypeProvider().post("/create-user", {}, async (request, reply) => {
     try {
       const { username, password, email } = request.body as {
         username: string;
@@ -25,9 +26,19 @@ export async function createUser(app: FastifyInstance) {
         },
       });
 
-      return { newUser };
+      const payload = {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+      };
+
+      const token = jwt.sign(payload, env.JWT_SECRET!, {
+        expiresIn: "1h",
+      });
+
+      return { token: token, user: newUser };
     } catch (error) {
-      return { message: "Erro ao criar usuário" };
+      return reply.code(500).send({ message: "Erro ao criar usuário" });
     }
   });
 }

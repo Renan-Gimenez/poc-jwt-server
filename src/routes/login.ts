@@ -1,11 +1,12 @@
 import type { FastifyInstance } from "fastify";
+import jwt from "jsonwebtoken";
 
 import { prisma } from "@/utils/prismaClient";
 
 import bcrypt from "bcrypt";
 
 export async function login(app: FastifyInstance) {
-  app.withTypeProvider().post("/login", {}, async (request) => {
+  app.withTypeProvider().post("/login", {}, async (request, reply) => {
     try {
       const { username, password } = request.body as {
         username: string;
@@ -19,19 +20,29 @@ export async function login(app: FastifyInstance) {
       });
 
       if (!user) {
-        return { message: "Usuário ou senha inválidos" };
+        return reply.code(401).send({ message: "Usuário ou senha inválidos" });
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
-        return { message: "Usuário ou senha inválidos" };
+        return reply.code(401).send({ message: "Usuário ou senha inválidos" });
       }
 
-      return { user };
+      const payload = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      };
+
+      const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+        expiresIn: "1h",
+      });
+
+      return reply.code(200).send({ token: token, user: payload });
     } catch (error) {
       console.error(error);
-      return { message: "Erro ao efetuar login" };
+      return reply.code(500).send({ message: "Erro ao efetuar login" });
     }
   });
 }

@@ -11,6 +11,7 @@
   "description": "",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.5.5",
     "prisma": "^5.19.1",
     "tsx": "^4.19.1",
@@ -19,6 +20,7 @@
   "dependencies": {
     "@prisma/client": "^5.14.0",
     "bcrypt": "^5.1.1",
-    "fastify": "^5.0.0"
+    "fastify": "^5.0.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
