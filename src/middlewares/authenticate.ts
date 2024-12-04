@@ -1,6 +1,15 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
-import { env } from "process";
+
+declare module "fastify" {
+  interface FastifyRequest {
+    user?: {
+      id: string;
+      username: string;
+      email: string;
+    };
+  }
+}
 
 interface JwtPayload {
   sub: string;
@@ -25,7 +34,7 @@ export function authenticate(
     const token = authHeader.split(" ")[1];
 
     try {
-      const decoded = jwt.verify(token, env.JWT_SECRET!) as JwtPayload;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
 
       request.user = {
         id: decoded.sub,
