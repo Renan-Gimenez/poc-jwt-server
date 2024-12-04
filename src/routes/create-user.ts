@@ -1,11 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
-
-import { prisma } from "@/utils/prismaClient";
-
 import bcrypt from "bcrypt";
 
-import { env } from "process";
+import { prisma } from "@/utils/prismaClient";
 
 export async function createUser(app: FastifyInstance) {
   app.withTypeProvider().post("/create-user", {}, async (request, reply) => {
@@ -16,7 +13,24 @@ export async function createUser(app: FastifyInstance) {
         email: string;
       };
 
-      const hashedPassword = await bcrypt.hash(password, Number(env.SALT));
+      const existingUser = await prisma.user.findUnique({
+        where: { username: username },
+      });
+      if (existingUser) {
+        return reply.code(409).send({ message: "Usuário já cadastrado" });
+      }
+
+      const existingEmail = await prisma.user.findUnique({
+        where: { email: email },
+      });
+      if (existingEmail) {
+        return reply.code(409).send({ message: "Email já cadastrado" });
+      }
+
+      const hashedPassword = await bcrypt.hash(
+        password,
+        Number(process.env.SALT)
+      );
 
       const newUser = await prisma.user.create({
         data: {
@@ -32,13 +46,15 @@ export async function createUser(app: FastifyInstance) {
         email: newUser.email,
       };
 
-      const token = jwt.sign(payload, env.JWT_SECRET!, {
+      const token = jwt.sign(payload, process.env.JWT_SECRET!, {
         expiresIn: "1h",
       });
 
       return { token: token, user: newUser };
     } catch (error) {
-      return reply.code(500).send({ message: "Erro ao criar usuário" });
+      return reply
+        .code(501)
+        .send({ message: "Erro inesperado ao criar usuário" });
     }
   });
 }
