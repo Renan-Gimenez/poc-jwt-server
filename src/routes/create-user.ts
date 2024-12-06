@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-import { prisma } from "@/utils/prismaClient";
+import { prisma } from "../utils/prismaClient";
 
 export async function createUser(app: FastifyInstance) {
   app.withTypeProvider().post("/create-user", {}, async (request, reply) => {
@@ -13,14 +13,14 @@ export async function createUser(app: FastifyInstance) {
         email: string;
       };
 
-      const existingUser = await prisma.user.findUnique({
+      const existingUser = await prisma.users.findUnique({
         where: { username: username },
       });
       if (existingUser) {
         return reply.code(409).send({ message: "Usuário já cadastrado" });
       }
 
-      const existingEmail = await prisma.user.findUnique({
+      const existingEmail = await prisma.users.findUnique({
         where: { email: email },
       });
       if (existingEmail) {
@@ -32,7 +32,7 @@ export async function createUser(app: FastifyInstance) {
         Number(process.env.SALT)
       );
 
-      const newUser = await prisma.user.create({
+      const newUser = await prisma.users.create({
         data: {
           username,
           password: hashedPassword,

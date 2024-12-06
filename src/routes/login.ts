@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
 
-import { prisma } from "@/utils/prismaClient";
+import { prisma } from "../utils/prismaClient";
 
 import bcrypt from "bcrypt";
 
@@ -13,7 +13,7 @@ export async function login(app: FastifyInstance) {
         password: string;
       };
 
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: {
           username: username,
         },

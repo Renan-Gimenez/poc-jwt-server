@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 
-import { prisma } from "@/utils/prismaClient";
-import { authenticate } from "@/middlewares/authenticate";
+import { prisma } from "../utils/prismaClient";
+import { authenticate } from "../middlewares/authenticate";
 
 export async function getUsers(app: FastifyInstance) {
   app
@@ -11,7 +11,7 @@ export async function getUsers(app: FastifyInstance) {
       { preHandler: [authenticate] },
       async (request, reply) => {
         try {
-          const users = await prisma.user.findMany();
+          const users = await prisma.users.findMany();
 
           return { users };
         } catch {
