@@ -44,7 +44,7 @@ export function authenticate(
 
       done();
     } catch (error) {
-      console.error("Erro ao verificar o token:", error);
+      console.error("Token inválido ou expirado");
       return reply.status(401).send({ message: "Token inválido ou expirado" });
     }
   } catch (error) {
